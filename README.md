@@ -1,4 +1,4 @@
-# DCAVG---Binance-Bitcoin-Daily-Dollar-Cost-Averaging
+# DCAVG: Binance/Bitcoin Daily Dollar Cost Averaging (DCA)
 **Tool that allows you to buy Bitcoin with your Binance account automatically every day (or almost every day)**
 
 With this tool you will never forget to buy your daily bitcoins. In fact, everything will be done automatically using the Binance API of your account. 
