@@ -7,8 +7,7 @@ The bot will buy daily the correspondent in Bitcoin of an amount in euro defined
 If the USD value of the Bitcoins to buy is lower than 10USD, which is the minimum value to trade on Binance, then the bot will postpone the purchase to the next day until the value reaches at least 10USD. 
 All the information collected daily is saved on a csv `./src/data.csv`, so you can have the information available for possible analysis for your portfolio.   
 
-You can set this tool by simply adding your Binance API key to the `./src/secrets.py` file and configure the purchase settings to `./src/config.py`. 
-If you need help, do not hesitate to contact me. 
+You can set this tool by simply adding your Binance API key to the `./src/secrets.py` file and configure the purchase settings to `./src/config.py`. Then run `./src/DCAVG.py`. If you need help, do not hesitate to contact me. 
 
 ---
 
