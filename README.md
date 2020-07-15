@@ -16,7 +16,7 @@ You can set this tool by simply adding your Binance API key to the `./src/secret
 ---
 
 
-## Upcoming developments
+## To do
 
  - Add Telegram message notification system to alert you when your USDT balance on your account at Binance is about to run out
  - Add an automatic USDT recharge system to your account directly from FIAT and/or ERC-20 wallets. 
