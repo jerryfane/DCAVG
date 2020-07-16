@@ -1,6 +1,6 @@
 import pandas as pd
-import time
-from datetime import datetime
+#import time as tm
+from datetime import datetime, time
 from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin, urlencode
@@ -61,4 +61,13 @@ def eur_to_usd(eur):
 
     exchange_rate_1eur_eqto = dic['rates']['USD']
     return eur * exchange_rate_1eur_eqto
+
+#check the time, snapshot needs to be taken at around 00:00 UTC
+def is_time_between(begin_time, end_time, check_time=None):
+    # If check time is not given, default to current UTC time
+    check_time = check_time or datetime.utcnow().time()
+    if begin_time < end_time:
+        return check_time >= begin_time and check_time <= end_time
+    else: # crosses midnight
+        return check_time >= begin_time or check_time <= end_time
 
