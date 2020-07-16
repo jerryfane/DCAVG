@@ -62,6 +62,9 @@ def main(btc_to_buy,buy_eur_per_day):
         line_prepender('log.txt', str(datetime.utcnow())+' '+str(is_it_time))
         #wait 30 minutes
         tm.sleep(60*30)
+        
+        #restart
+        main(btc_to_buy,buy_eur_per_day)
     
     
 
