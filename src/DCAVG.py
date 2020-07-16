@@ -20,6 +20,7 @@ def main(btc_to_buy,buy_eur_per_day):
     #if is it time to buy, proceed
     if is_it_time:
         print(datetime.utcnow(),is_it_time)
+        line_prepender('log.txt', str(datetime.utcnow(),is_it_time)
         
         #check price of Bitcoin
         bitcoin_price_usd = float(binance.get_binance_price('BTCUSDT')['price'])
@@ -58,6 +59,7 @@ def main(btc_to_buy,buy_eur_per_day):
         tm.sleep(60*30)
     else:
         print(datetime.utcnow(),is_it_time)
+        line_prepender('log.txt', str(datetime.utcnow(),is_it_time)
         #wait 30 minutes
         tm.sleep(60*30)
     
