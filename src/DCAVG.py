@@ -14,8 +14,8 @@ def main(btc_to_buy,buy_eur_per_day):
     #wait 1 day
     #tm.sleep(60*60*24)
     
-    #buy at 7PM to 7:30PM, check here if it is time to buy
-    is_it_time = is_time_between(time(18,59), time(19,30))
+    #buy at 5PM to 5:30PM UTC, check here if it is time to buy
+    is_it_time = is_time_between(time(16,59), time(17,30))
     
     #if is it time to buy, proceed
     if is_it_time:
@@ -37,8 +37,12 @@ def main(btc_to_buy,buy_eur_per_day):
         save_load_info(transactTime, bitcoin_price_usd, bitcoin_price_eur, round((buy_eur_per_day / bitcoin_price_eur),6), round((buy_eur_per_day / bitcoin_price_eur),6)*bitcoin_price_usd, btc_to_buy)
 
         #if amount_btc*price < 10 USD
-        if btc_to_buy_value < 10:     
-            #wait another day
+        if btc_to_buy_value < 10:   
+            
+            #wait 30 minutes
+            tm.sleep(60*30)
+
+            #restart
             main(btc_to_buy,buy_eur_per_day)
         else:
             #buy bitcoin
@@ -51,12 +55,13 @@ def main(btc_to_buy,buy_eur_per_day):
 
             save_buy_info(buy_info, bitcoin_price_eur, btc_to_buy)
 
-            #restart
-            main(btc_to_buy,buy_eur_per_day)
    
         
         #wait 30 minutes
         tm.sleep(60*30)
+        
+        #restart
+        main(btc_to_buy,buy_eur_per_day)
     else:
         print(datetime.utcnow(),is_it_time)
         line_prepender('log.txt', str(datetime.utcnow())+' '+str(is_it_time))
@@ -71,4 +76,5 @@ def main(btc_to_buy,buy_eur_per_day):
 binance = Binance(API_KEY, SECRET_KEY)
 
 main(btc_to_buy,buy_eur_per_day)
+
 
