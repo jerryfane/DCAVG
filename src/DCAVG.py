@@ -36,7 +36,7 @@ def main(btc_to_buy,buy_eur_per_day):
         #buy bitcoin
         btc_to_buy = round(btc_to_buy,6)
         print(btc_to_buy)
-        #buy_info = binance.buy_BTC('MARKET', btc_to_buy)
+        buy_info = binance.buy_BTC('MARKET', btc_to_buy)
         
         #reset btc_to_buy
         btc_to_buy = 0
