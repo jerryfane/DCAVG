@@ -15,7 +15,7 @@ You can set this tool by simply adding your Binance API key to the `./src/secret
 
 ---
 
-# Update #1 - 08/28/2020
+### Update #1 - 08/28/2020
 
 I have improved the program so that it can manage the API keys of multiple accounts, saving all the data in the same CSV with a new "user" column. 
 
