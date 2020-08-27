@@ -15,6 +15,14 @@ You can set this tool by simply adding your Binance API key to the `./src/secret
 
 ---
 
+# Update #1 - 08/28/2020
+
+I have improved the program so that it can manage the API keys of multiple accounts, saving all the data in the same CSV with a new "user" column. 
+
+To add a new user just create a new row in the file `users.csv`, with the configuration and API Keys of the user in question. Then the program will buy Bitcoin following the settings configured for each user. 
+
+---
+
 
 ## To do
 
