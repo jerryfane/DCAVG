@@ -8,7 +8,7 @@ import json
 
 import pandas as pd
 
-def save_buy_info(buy_info, bitcoin_price_eur, btc_to_buy):
+def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy):
     orderId = buy_info['orderId']
     clientOrderId = buy_info['clientOrderId']
     transactTime = buy_info['transactTime']
@@ -19,25 +19,25 @@ def save_buy_info(buy_info, bitcoin_price_eur, btc_to_buy):
     tradeId = buy_info['fills'][0]['tradeId']
     status = 'completed'
     
-    output = (transactTime, quantity_btc, quantity_usd, commission_btc, price_usd, bitcoin_price_eur, btc_to_buy, orderId, clientOrderId, status)
+    output = (transactTime, user, quantity_btc, quantity_usd, commission_btc, price_usd, bitcoin_price_eur, btc_to_buy, orderId, clientOrderId, status)
     data = pd.read_csv('./data.csv')
     
     df = pd.DataFrame(output).T
-    df.columns = ['transactTime', "quantity_btc", "quantity_usd", "commission_btc",
+    df.columns = ['transactTime', "user", "quantity_btc", "quantity_usd", "commission_btc",
               'price_usd', "bitcoin_price_eur", "total_btc", "orderId", "clientOrderId", "status"]
     
     data = data.append(df, sort=False)
     data.to_csv('./data.csv', index=False)
 
 
-def save_load_info(transactTime, bitcoin_price_usd, bitcoin_price_eur, quantity_btc, quantity_usd, btc_to_buy):
+def save_load_info(transactTime, user, bitcoin_price_usd, bitcoin_price_eur, quantity_btc, quantity_usd, btc_to_buy):
     status = 'postponed'
     
-    output = (transactTime, quantity_btc, quantity_usd, 0, bitcoin_price_usd, bitcoin_price_eur, btc_to_buy, 0, 0, status)
+    output = (transactTime, user, quantity_btc, quantity_usd, 0, bitcoin_price_usd, bitcoin_price_eur, btc_to_buy, 0, 0, status)
     data = pd.read_csv('./data.csv')
     
     df = pd.DataFrame(output).T
-    df.columns = ['transactTime', "quantity_btc", "quantity_usd", "commission_btc",
+    df.columns = ['transactTime', "user", "quantity_btc", "quantity_usd", "commission_btc",
               'price_usd', "bitcoin_price_eur", "total_btc", "orderId", "clientOrderId", "status"]
     
     data = data.append(df, sort=False)
@@ -76,4 +76,5 @@ def line_prepender(filename, line):
         content = f.read()
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
+
 
