@@ -31,7 +31,13 @@ def main(btc_to_buy,buy_eur_per_day):
             bitcoin_price_eur = usd_to_eur(bitcoin_price_usd)
             
             buy_eur_per_day = users[user]['buy_eur_per_day']
-            btc_to_buy= users[user]['btc_to_buy']
+            if users[user]['continue_from_last_day'] == True:
+                data_temp = pd.read_csv('./data.csv')
+                btc_to_buy = data_temp[data_temp['user'] == user]['total_btc'].values[-1]
+                users[user]['btc_to_buy'] = btc_to_buy
+                del data_temp
+            else:
+                btc_to_buy= users[user]['btc_to_buy']
 
             #calculate how many bitcoin to buy
             btc_to_buy += round((buy_eur_per_day / bitcoin_price_eur),6)
