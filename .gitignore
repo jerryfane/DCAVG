@@ -1,0 +1,11 @@
+*ipynb
+*.xlsx
+*.ipynb
+src/__pycache__/
+*.session
+data.csv
+users.csv
+.DS_Store
+nohup.out
+log.txt
+secrets.py

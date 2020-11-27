@@ -107,7 +107,8 @@ class Binance():
             raise BinanceException(status_code=r.status_code, data=r.json())
 
     def buy_BTC(self, Type, quantity, price = 0):
-        symbol = 'BTCUSDT'
+        #symbol = 'BTCUSDT'
+        symbol = 'BTCEUR'
         side = 'BUY'
 
         if Type == 'MARKET': order_data = self.create_binance_order(symbol, side, Type, quantity)

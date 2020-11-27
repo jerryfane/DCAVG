@@ -6,16 +6,31 @@ import requests
 from urllib.parse import urljoin, urlencode
 import json
 
+from telethon.tl.functions.messages import SearchRequest
+from telethon.tl.types import InputMessagesFilterEmpty
+from telethon import TelegramClient, sync
+from telethon import functions, types
+from retrying import retry
+
 import pandas as pd
+
+
+def send_message_telegram(client, user_id, output):
+    #destination_channel="https://t.me/{}".format(user)
+    #destination_channel="https://t.me/jerrytest"
+    entity=client.get_entity(int(user_id))
+    #client.send_file(entity=entity,file='screenshot.png',caption=output)
+    client.send_message(entity=entity,message=output)
 
 def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy):
     orderId = buy_info['orderId']
     clientOrderId = buy_info['clientOrderId']
     transactTime = buy_info['transactTime']
     quantity_btc = buy_info['origQty']
-    quantity_usd = buy_info['cummulativeQuoteQty']
+    quantity_usd = eur_to_usd(buy_info['cummulativeQuoteQty'])
     commission_btc = buy_info['fills'][0]['commission']
-    price_usd = buy_info['fills'][0]['price']
+    #price_usd = buy_info['fills'][0]['price']
+    price_usd = eur_to_usd(bitcoin_price_eur)
     tradeId = buy_info['fills'][0]['tradeId']
     status = 'completed'
     
@@ -50,8 +65,8 @@ def usd_to_eur(usd):
     soup = BeautifulSoup(response.content, "html.parser")
     dic = json.loads(soup.prettify())
 
-    exchange_rate_1eur_eqto = dic['rates']['USD']
-    return usd / exchange_rate_1eur_eqto
+    exchange_rate_1eur_eqto = float(dic['rates']['USD'])
+    return float(usd) / exchange_rate_1eur_eqto
 
 def eur_to_usd(eur):
     url_eurusd = "https://api.exchangeratesapi.io/latest"
@@ -59,8 +74,8 @@ def eur_to_usd(eur):
     soup = BeautifulSoup(response.content, "html.parser")
     dic = json.loads(soup.prettify())
 
-    exchange_rate_1eur_eqto = dic['rates']['USD']
-    return eur * exchange_rate_1eur_eqto
+    exchange_rate_1eur_eqto = float(dic['rates']['USD'])
+    return float(eur) * exchange_rate_1eur_eqto
 
 #check the time, snapshot needs to be taken at around 00:00 UTC
 def is_time_between(begin_time, end_time, check_time=None):
@@ -76,5 +91,4 @@ def line_prepender(filename, line):
         content = f.read()
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
-
 
