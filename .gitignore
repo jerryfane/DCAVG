@@ -9,3 +9,6 @@ users.csv
 nohup.out
 log.txt
 secrets.py
+src/users.csv
+src/data.csv
+

@@ -36,6 +36,16 @@ async def my_event_handler(event):
     #name = utils.get_display_name(sender)
     #print(sender, 'said', event.text, '!')
     #return 
+    
+    if 'report' in event.text:
+        users = pd.read_csv('./users.csv')
+        if sender.username in list(users.telegram_username):
+            rows = users[users.telegram_username == sender.username]
+            user = rows.username.values[0]
+            create_excel_file(user)
+            await event.respond('Your excel report is coming ;)')
+            await client.send_file(event.chat_id, './excel_files/{}.xlsx'.format(user))
+
 
 client.start()
 client.run_until_disconnected()

@@ -91,4 +91,65 @@ def line_prepender(filename, line):
         content = f.read()
         f.seek(0, 0)
         f.write(line.rstrip('\r\n') + '\n' + content)
+        
+        
+def create_excel(user, status):
+    #status = 'completed' or 'postponed'
+    #print('creating excel')
+    
+    df = pd.read_csv('./data.csv')
+    df['date'] = df['transactTime'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+    df = df.set_index('date')
+    df['total_btc_value'] = df['total_btc'] * df['price_usd']
+    df3 = df[['user','quantity_btc', 'quantity_usd', 'price_usd', 'bitcoin_price_eur', 'total_btc', 'total_btc_value', 'status']]
+    
+    
+    user_df = df3[df3['user'] == user]
+    df_excel = user_df[user_df.status == status]
+    
+    
+    columns = ['quantity_btc',
+           'bitcoin_price_eur',
+           'price_usd']
+
+    #df_excel = df_excel[columns][::-1]
+    df_excel = df_excel[columns]
+    df_excel.columns = ['Paid (BTC)', 'BTC Price (EUR)', 'BTC Price (USD)']
+    
+    df_excel['Exchange In (EUR)'] = df_excel['Paid (BTC)'] * df_excel['BTC Price (EUR)']
+    df_excel['Balance (BTC)'] = df_excel['Paid (BTC)'].cumsum()
+    df_excel['Paid (EUR)'] = df_excel['Exchange In (EUR)'].cumsum()
+    df_excel['Balance (EUR)'] = df_excel['Balance (BTC)'] * df_excel['BTC Price (EUR)']
+    df_excel['Balance (USD)'] = df_excel['Balance (BTC)'] * df_excel['BTC Price (USD)']
+    df_excel['Average Price Bought (EUR)'] = df_excel['Paid (EUR)'] / df_excel['Balance (BTC)']
+    df_excel['Average Price Bought (USD)'] = df_excel['Average Price Bought (EUR)'] * (df_excel['BTC Price (USD)'] / df_excel['BTC Price (EUR)'])
+    df_excel['Profit/Loss (EUR)'] = df_excel['Balance (EUR)'] - df_excel['Paid (EUR)']
+    df_excel['Profit/Loss Percentage'] = df_excel['Profit/Loss (EUR)'] / df_excel['Paid (EUR)']
+    
+    cols = ['Paid (BTC)',
+        'Exchange In (EUR)',
+        'Paid (EUR)',
+        'Balance (BTC)',
+        'Balance (EUR)',
+        'Balance (USD)',
+        'BTC Price (EUR)',
+        'BTC Price (USD)',
+        'Average Price Bought (EUR)',
+        'Average Price Bought (USD)',
+        'Profit/Loss (EUR)',
+        'Profit/Loss Percentage'
+    ]
+
+    df_excel = df_excel[cols]
+    return df_excel
+    
+
+def create_excel_file(user):
+    
+    #print('create_excel_file')
+   
+    with pd.ExcelWriter('./excel_files/{}.xlsx'.format(user)) as writer: 
+        create_excel('giovanni', 'postponed').to_excel(writer, sheet_name='Postponed')
+        create_excel('giovanni', 'completed').to_excel(writer, sheet_name='Completed')
+    
 
