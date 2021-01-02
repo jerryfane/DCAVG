@@ -149,7 +149,7 @@ def create_excel_file(user):
     #print('create_excel_file')
    
     with pd.ExcelWriter('./excel_files/{}.xlsx'.format(user)) as writer: 
-        create_excel('giovanni', 'postponed').to_excel(writer, sheet_name='Postponed')
-        create_excel('giovanni', 'completed').to_excel(writer, sheet_name='Completed')
+        create_excel(user, 'postponed').to_excel(writer, sheet_name='Postponed')
+        create_excel(user, 'completed').to_excel(writer, sheet_name='Completed')
     
 

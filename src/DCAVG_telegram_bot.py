@@ -37,7 +37,7 @@ async def my_event_handler(event):
     #print(sender, 'said', event.text, '!')
     #return 
     
-    if 'report' in event.text:
+    if 'report' in event.text.lower():
         users = pd.read_csv('./users.csv')
         if sender.username in list(users.telegram_username):
             rows = users[users.telegram_username == sender.username]
