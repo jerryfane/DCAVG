@@ -5,7 +5,8 @@ from datetime import datetime, time
 from bs4 import BeautifulSoup
 
 from Binance import BinanceException, Binance
-from secrets import API_KEY, SECRET_KEY #insert here your Binance API keys
+from Coinbase import CoinbasePro
+from secrets import api_id, api_hash #insert here your Telegram API keys
 from config import users
 from utils import *
 
@@ -24,7 +25,8 @@ def main(client):
 
 
         for user in users:
-            binance = binance_dict[user]
+            exchange_name = users[user]['exchange'].lower()
+            exchange = exchange_dict[user]
             telegram_id = telegram_id_dict[user]
 
             #check price of Bitcoin, buy in USDT
@@ -32,7 +34,7 @@ def main(client):
             #bitcoin_price_eur = usd_to_eur(bitcoin_price_usd)
 
             #check price of Bitcoin, buy in EUR
-            bitcoin_price_eur = float(binance.get_price('BTCEUR')['price'])
+            bitcoin_price_eur = float(exchange.get_price('BTCEUR')['price'])
             bitcoin_price_usd = eur_to_usd(bitcoin_price_eur)
 
             buy_eur_per_day = users[user]['buy_eur_per_day']
@@ -42,16 +44,16 @@ def main(client):
                 users[user]['btc_to_buy'] = btc_to_buy
                 del data_temp
             else:
-                btc_to_buy= users[user]['btc_to_buy']
+                btc_to_buy = users[user]['btc_to_buy']
 
             #calculate how many bitcoin to buy
             btc_to_buy += round((buy_eur_per_day / bitcoin_price_eur),6)
-            btc_to_buy_value = btc_to_buy*bitcoin_price_usd
+            btc_to_buy_value = btc_to_buy*bitcoin_price_eur
             print(btc_to_buy)
             print(btc_to_buy_value)
 
             #save load info
-            transactTime = binance.get_servertime()
+            transactTime = exchange.get_servertime()
             save_load_info(transactTime, user, bitcoin_price_usd, bitcoin_price_eur, round((buy_eur_per_day / bitcoin_price_eur),6), round((buy_eur_per_day / bitcoin_price_eur),6)*bitcoin_price_usd, btc_to_buy)
 
             #if amount_btc*price < 10 EUR
@@ -72,11 +74,11 @@ def main(client):
 
 
                 try:
-                    buy_info = binance.buy_BTC('MARKET', btc_to_buy)
+                    buy_info = exchange.buy_BTC('MARKET', btc_to_buy)
                     #reset btc_to_buy
                     btc_to_buy = 0
-                    save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy)
-                    message_str = """We just bough some Bitcoin for you!\nCheck your Binance account."""
+                    save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, exchange=exchange_name)
+                    message_str = """We just bough some Bitcoin for you!\nCheck your {} account.""".format(exchange_name.capitalize())
                     send_message_telegram(client, telegram_id, "User: {}\n".format(user) + message_str)
                 except Exception as e:
                     print(e)
@@ -104,19 +106,21 @@ def main(client):
 
 
 
-binance_dict = {}
+exchange_dict = {}
 telegram_id_dict = {}
 
-
-api_id = 467289
-api_hash = 'e28ae7645ddc77f8f684576e98f8bb12'
 client = TelegramClient('DCAVG_session', api_id, api_hash).start()
 
 for user in users:
     API_KEY = users[user]['API_KEY']
     SECRET_KEY = users[user]['SECRET_KEY']
-    binance = Binance(API_KEY, SECRET_KEY)
-    binance_dict[user] = binance
+    PASSPHRASE = users[user]['PASSPHRASE']
+    if users[user]['exchange'].lower() == 'binance':
+        exchange = Binance(API_KEY, SECRET_KEY)
+        exchange_dict[user] = exchange
+    elif users[user]['exchange'].lower() == 'coinbase':
+        exchange = CoinbasePro(API_KEY, SECRET_KEY, PASSPHRASE)
+        exchange_dict[user] = exchange
 
     telegram_id = users[user]['telegram_id']
     telegram_id_dict[user] = telegram_id

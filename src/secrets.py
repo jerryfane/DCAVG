@@ -1,4 +1,4 @@
-#Insert here your Binance API Keys
+#Insert here your Telegram API keys
 
-API_KEY = ''
-SECRET_KEY = ''
+api_id = 00000
+api_hash = ''

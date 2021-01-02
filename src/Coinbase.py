@@ -15,7 +15,8 @@ class CoinbasePro():
         return self.public_client.get_time()['epoch']
 
     def get_price(self, product_id):
-        return self.public_client.get_product_ticker(product_id)['price']
+        if product_id == 'BTCEUR': product_id = 'BTC-EUR'
+        return self.public_client.get_product_ticker(product_id)
 
     def market_buy_funds(self, order_type, product_id, funds):
         order = self.auth_client.buy(order_type=order_type,
@@ -35,11 +36,10 @@ class CoinbasePro():
         else: return False
 
     def get_filled_order_data(self, order_id):
-        return self.auth_client.get_fills(order_id=order_id)
+        return pd.DataFrame(self.auth_client.get_fills(order_id=order_id))
 
     def buy_BTC(self, order_type, quantity, price=0):
         order_id = self.market_buy_size(order_type.lower(), 'BTC-EUR', quantity)
         tm.sleep(5)
         if self.check_order_filled(order_id):
             return self.get_filled_order_data(order_id)
-        

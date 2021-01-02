@@ -13,6 +13,7 @@ for user in users_df['username']:
     users[user]['SECRET_KEY'] = users_df[users_df['username'] == user]['SECRET_KEY'].values[0]
     users[user]['telegram_username'] = users_df[users_df['username'] == user]['telegram_username'].values[0]
     users[user]['telegram_id'] = users_df[users_df['username'] == user]['telegram_id'].values[0]
+    users[user]['exchange'] = users_df[users_df['username'] == user]['exchange'].values[0]
 
 
 for user in users:
