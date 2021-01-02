@@ -32,7 +32,7 @@ class Binance():
             'X-MBX-APIKEY': API_KEY
         }
 
-    def get_binane_servertime(self):
+    def get_servertime(self):
         PATH =  '/api/v1/time'
         params = None
 
@@ -48,7 +48,7 @@ class Binance():
         else:
             raise BinanceException(status_code=r.status_code, data=r.json())
 
-    def get_binance_price(self, symbol):
+    def get_price(self, symbol):
         PATH = '/api/v3/ticker/price'
         params = {
             'symbol': symbol
