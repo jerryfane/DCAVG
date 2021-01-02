@@ -22,12 +22,12 @@ def send_message_telegram(client, user_id, output):
     #client.send_file(entity=entity,file='screenshot.png',caption=output)
     client.send_message(entity=entity,message=output)
 
-def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, exchange='binance'):
+def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, transactTime, exchange='binance'):
 
     if exchange == 'binance':
         orderId = buy_info['orderId']
         clientOrderId = buy_info['clientOrderId']
-        transactTime = buy_info['transactTime']
+        #transactTime = buy_info['transactTime']
         quantity_btc = buy_info['origQty']
         quantity_usd = eur_to_usd(buy_info['cummulativeQuoteQty'])
         commission_btc = buy_info['fills'][0]['commission']
@@ -39,10 +39,10 @@ def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, exchange='binan
     elif exchange == 'coinbase':
         orderId = buy_info['order_id'].values[0]
         clientOrderId = buy_info['order_id'].values[0]
-        transactTime = buy_info['created_at'].values[0]
+        #transactTime = buy_info['created_at'].values[0]
         quantity_btc = buy_info['size'].values[0]
         quantity_usd = buy_info['usd_volume'].values[0]
-        commission_btc = buy_info['fee'].values[0] / bitcoin_price_eur
+        commission_btc = float(buy_info['fee'].values[0]) / bitcoin_price_eur
         price_usd = eur_to_usd(bitcoin_price_eur)
         tradeId = buy_info['trade_id'].values[0]
         status = 'completed'

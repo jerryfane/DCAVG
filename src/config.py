@@ -11,6 +11,7 @@ for user in users_df['username']:
     users[user]['btc_to_buy'] = users_df[users_df['username'] == user]['btc_to_buy'].values[0]
     users[user]['API_KEY'] = users_df[users_df['username'] == user]['API_KEY'].values[0]
     users[user]['SECRET_KEY'] = users_df[users_df['username'] == user]['SECRET_KEY'].values[0]
+    users[user]['PASSPHRASE'] = users_df[users_df['username'] == user]['PASSPHRASE'].values[0]
     users[user]['telegram_username'] = users_df[users_df['username'] == user]['telegram_username'].values[0]
     users[user]['telegram_id'] = users_df[users_df['username'] == user]['telegram_id'].values[0]
     users[user]['exchange'] = users_df[users_df['username'] == user]['exchange'].values[0]
@@ -19,5 +20,8 @@ for user in users_df['username']:
 for user in users:
     if users[user]['continue_from_last_day'] == True:
         data = pd.read_csv('./data.csv')
-        btc_to_buy = data[data['user'] == user]['total_btc'].values[-1]
+        try:
+            btc_to_buy = data[data['user'] == user]['total_btc'].values[-1]
+        except:
+            btc_to_buy = users[user]['btc_to_buy']
         users[user]['btc_to_buy'] = btc_to_buy

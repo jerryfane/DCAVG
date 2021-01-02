@@ -40,7 +40,11 @@ def main(client):
             buy_eur_per_day = users[user]['buy_eur_per_day']
             if users[user]['continue_from_last_day'] == True:
                 data_temp = pd.read_csv('./data.csv')
-                btc_to_buy = data_temp[data_temp['user'] == user]['total_btc'].values[-1]
+                try:
+                    btc_to_buy = data_temp[data_temp['user'] == user]['total_btc'].values[-1]
+                except:
+                    #initialize user
+                    btc_to_buy = users[user]['btc_to_buy']
                 users[user]['btc_to_buy'] = btc_to_buy
                 del data_temp
             else:
@@ -57,14 +61,11 @@ def main(client):
             save_load_info(transactTime, user, bitcoin_price_usd, bitcoin_price_eur, round((buy_eur_per_day / bitcoin_price_eur),6), round((buy_eur_per_day / bitcoin_price_eur),6)*bitcoin_price_usd, btc_to_buy)
 
             #if amount_btc*price < 10 EUR
+
             if btc_to_buy*bitcoin_price_eur < 10:
-
-                #wait 30 minutes
-                #tm.sleep(60*30)
-
-                #restart
-                #main(btc_to_buy,buy_eur_per_day)
-
+                #continue to next user
+                continue
+            elif exchange_name == 'coinbase' and btc_to_buy < 0.001:
                 #continue to next user
                 continue
             else:
@@ -77,7 +78,7 @@ def main(client):
                     buy_info = exchange.buy_BTC('MARKET', btc_to_buy)
                     #reset btc_to_buy
                     btc_to_buy = 0
-                    save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, exchange=exchange_name)
+                    save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, transactTime, exchange=exchange_name)
                     message_str = """We just bough some Bitcoin for you!\nCheck your {} account.""".format(exchange_name.capitalize())
                     send_message_telegram(client, telegram_id, "User: {}\n".format(user) + message_str)
                 except Exception as e:

@@ -12,7 +12,7 @@ class CoinbasePro():
         self.public_client = cbpro.PublicClient()
 
     def get_servertime(self):
-        return self.public_client.get_time()['epoch']
+        return self.public_client.get_time()['epoch']*1000
 
     def get_price(self, product_id):
         if product_id == 'BTCEUR': product_id = 'BTC-EUR'
@@ -40,6 +40,6 @@ class CoinbasePro():
 
     def buy_BTC(self, order_type, quantity, price=0):
         order_id = self.market_buy_size(order_type.lower(), 'BTC-EUR', quantity)
-        tm.sleep(5)
+        tm.sleep(10)
         if self.check_order_filled(order_id):
             return self.get_filled_order_data(order_id)
