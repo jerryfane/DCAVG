@@ -111,7 +111,7 @@ def create_excel(user, status):
     #print('creating excel')
 
     df = pd.read_csv('./data.csv')
-    df['date'] = df['transactTime'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+    df['date'] = df['transactTime'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:-3])/100).strftime('%Y-%m-%d %H:%M:%S'))
     df = df.set_index('date')
     df['total_btc_value'] = df['total_btc'] * df['price_usd']
     df3 = df[['user','quantity_btc', 'quantity_usd', 'price_usd', 'bitcoin_price_eur', 'total_btc', 'total_btc_value', 'status']]

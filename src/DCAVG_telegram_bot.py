@@ -5,7 +5,7 @@ from datetime import datetime, time
 from bs4 import BeautifulSoup
 
 from Binance import BinanceException, Binance
-from secrets import API_KEY, SECRET_KEY #insert here your Binance API keys
+from secrets import api_id, api_hash #insert here your Binance API keys
 from config import users
 from utils import *
 
@@ -13,8 +13,7 @@ from telethon import events
 
 import pandas as pd
 
-api_id = 467289
-api_hash = 'e28ae7645ddc77f8f684576e98f8bb12'
+
 client = TelegramClient('DCAVG_bot_session', api_id, api_hash).start()
 
 
