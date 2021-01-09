@@ -43,8 +43,26 @@ async def my_event_handler(event):
             user = rows.username.values[0]
             create_excel_file(user)
             await event.respond('Your excel report is coming ;)')
-            await client.send_file(event.chat_id, './excel_files/{}.xlsx'.format(user))
-
+            await client.send_file(event.chat_id, './excel_files/{}.xlsx'.format(user))  
+            
+    if 'reset_bitcoin_amount' in event.text.lower():
+        users = pd.read_csv('./users.csv')
+        if sender.username in list(users.telegram_username):
+            data = pd.read_csv('./data.csv')
+            data = data.append([{'user': sender.username, 'total_btc':0.0, 'status':'reset_bitcoin_amount'}], ignore_index=True)
+            data.to_csv('./data.csv', index=False)
+            await event.respond('Your amount of Bitcoin to buy has been reset to zero')
+            
+    if 'set_bitcoin_to_buy' in event.text.lower():
+        users = pd.read_csv('./users.csv')
+        print(float(event.text.split(' ')[-1]))
+        if sender.username in list(users.telegram_username):
+            index = df[df.username == sender.username].index[0]
+            amount = float(event.text.split(' ')[-1])
+            users.loc[index,'buy_eur_per_day'] = amount
+            users.to_csv('./users.csv', index=False)
+            await event.respond('Your amount of Bitcoin to buy each day has been set to {} euro per day'.format(amount))
+            
 
 client.start()
 client.run_until_disconnected()
