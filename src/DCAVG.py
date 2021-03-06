@@ -3,11 +3,9 @@ import pandas as pd
 import time as tm
 from datetime import datetime, time
 from bs4 import BeautifulSoup
-
 from Binance import BinanceException, Binance
 from Coinbase import CoinbasePro
 from secrets import api_id, api_hash #insert here your Telegram API keys
-from config import users
 from utils import *
 
 
@@ -22,8 +20,9 @@ def main(client):
     if is_it_time:
         print(datetime.utcnow(),is_it_time)
         line_prepender('log.txt', str(datetime.utcnow())+' '+str(is_it_time))
-
-
+        
+        users, exchange_dict, telegram_id_dict = get_users_info()
+        
         for user in users:
             exchange_name = users[user]['exchange'].lower()
             exchange = exchange_dict[user]
@@ -107,23 +106,30 @@ def main(client):
 
 
 
-exchange_dict = {}
-telegram_id_dict = {}
 
 client = TelegramClient('DCAVG_session', api_id, api_hash).start()
 
-for user in users:
-    API_KEY = users[user]['API_KEY']
-    SECRET_KEY = users[user]['SECRET_KEY']
-    PASSPHRASE = users[user]['PASSPHRASE']
-    if users[user]['exchange'].lower() == 'binance':
-        exchange = Binance(API_KEY, SECRET_KEY)
-        exchange_dict[user] = exchange
-    elif users[user]['exchange'].lower() == 'coinbase':
-        exchange = CoinbasePro(API_KEY, SECRET_KEY, PASSPHRASE)
-        exchange_dict[user] = exchange
 
-    telegram_id = users[user]['telegram_id']
-    telegram_id_dict[user] = telegram_id
+def get_users_info():
+    from config import users
+    
+    exchange_dict = {}
+    telegram_id_dict = {}
+    
+    for user in users:
+        API_KEY = users[user]['API_KEY']
+        SECRET_KEY = users[user]['SECRET_KEY']
+        PASSPHRASE = users[user]['PASSPHRASE']
+        if users[user]['exchange'].lower() == 'binance':
+            exchange = Binance(API_KEY, SECRET_KEY)
+            exchange_dict[user] = exchange
+        elif users[user]['exchange'].lower() == 'coinbase':
+            exchange = CoinbasePro(API_KEY, SECRET_KEY, PASSPHRASE)
+            exchange_dict[user] = exchange
+
+        telegram_id = users[user]['telegram_id']
+        telegram_id_dict[user] = telegram_id
+    
+    return users, exchange_dict, telegram_id_dict
 
 main(client)
