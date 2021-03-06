@@ -20,9 +20,9 @@ def main(client):
     if is_it_time:
         print(datetime.utcnow(),is_it_time)
         line_prepender('log.txt', str(datetime.utcnow())+' '+str(is_it_time))
-        
+
         users, exchange_dict, telegram_id_dict = get_users_info()
-        
+
         for user in users:
             exchange_name = users[user]['exchange'].lower()
             exchange = exchange_dict[user]
@@ -38,7 +38,7 @@ def main(client):
 
             buy_eur_per_day = users[user]['buy_eur_per_day']
             if users[user]['continue_from_last_day'] == True:
-                data_temp = pd.read_csv('./data.csv')
+                data_temp = pd.read_csv('./datasets/data.csv')
                 try:
                     btc_to_buy = data_temp[data_temp['user'] == user]['total_btc'].values[-1]
                 except:
@@ -104,18 +104,15 @@ def main(client):
         #restart
         main(client)
 
-
-
-
 client = TelegramClient('DCAVG_session', api_id, api_hash).start()
 
-
 def get_users_info():
-    from config import users
-    
+    from config import get_users
+    users = get_users()
+
     exchange_dict = {}
     telegram_id_dict = {}
-    
+
     for user in users:
         API_KEY = users[user]['API_KEY']
         SECRET_KEY = users[user]['SECRET_KEY']
@@ -129,7 +126,7 @@ def get_users_info():
 
         telegram_id = users[user]['telegram_id']
         telegram_id_dict[user] = telegram_id
-    
+
     return users, exchange_dict, telegram_id_dict
 
 main(client)

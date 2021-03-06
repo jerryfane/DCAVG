@@ -48,28 +48,28 @@ def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, transactTime, e
         status = 'completed'
 
     output = (transactTime, user, quantity_btc, quantity_usd, commission_btc, price_usd, bitcoin_price_eur, btc_to_buy, orderId, clientOrderId, status)
-    data = pd.read_csv('./data.csv')
+    data = pd.read_csv('./datasets/data.csv')
 
     df = pd.DataFrame(output).T
     df.columns = ['transactTime', "user", "quantity_btc", "quantity_usd", "commission_btc",
               'price_usd', "bitcoin_price_eur", "total_btc", "orderId", "clientOrderId", "status"]
 
     data = data.append(df, sort=False)
-    data.to_csv('./data.csv', index=False)
+    data.to_csv('./datasets/data.csv', index=False)
 
 
 def save_load_info(transactTime, user, bitcoin_price_usd, bitcoin_price_eur, quantity_btc, quantity_usd, btc_to_buy):
     status = 'postponed'
 
     output = (transactTime, user, quantity_btc, quantity_usd, 0, bitcoin_price_usd, bitcoin_price_eur, btc_to_buy, 0, 0, status)
-    data = pd.read_csv('./data.csv')
+    data = pd.read_csv('./datasets/data.csv')
 
     df = pd.DataFrame(output).T
     df.columns = ['transactTime', "user", "quantity_btc", "quantity_usd", "commission_btc",
               'price_usd', "bitcoin_price_eur", "total_btc", "orderId", "clientOrderId", "status"]
 
     data = data.append(df, sort=False)
-    data.to_csv('./data.csv', index=False)
+    data.to_csv('./datasets/data.csv', index=False)
 
 
 def usd_to_eur(usd):
@@ -106,11 +106,11 @@ def line_prepender(filename, line):
         f.write(line.rstrip('\r\n') + '\n' + content)
 
 
-def create_excel(user, status):
+def create_excel(user, status, data_path='./datasets/data.csv'):
     #status = 'completed' or 'postponed'
     #print('creating excel')
 
-    df = pd.read_csv('./data.csv')
+    df = pd.read_csv(data_path)
     df['date'] = df['transactTime'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:-3])/100).strftime('%Y-%m-%d %H:%M:%S'))
     df = df.set_index('date')
     df['total_btc_value'] = df['total_btc'] * df['price_usd']
@@ -157,10 +157,10 @@ def create_excel(user, status):
     return df_excel
 
 
-def create_excel_file(user):
+def create_excel_file(user, data_path):
 
     #print('create_excel_file')
 
     with pd.ExcelWriter('./excel_files/{}.xlsx'.format(user)) as writer:
-        create_excel(user, 'postponed').to_excel(writer, sheet_name='Postponed')
-        create_excel(user, 'completed').to_excel(writer, sheet_name='Completed')
+        create_excel(user, 'postponed', data_path).to_excel(writer, sheet_name='Postponed')
+        create_excel(user, 'completed', data_path).to_excel(writer, sheet_name='Completed')
