@@ -9,7 +9,7 @@ import sys
 sys.path.append('../')
 
 from Binance import BinanceException, Binance
-from secrets import api_id, api_hash #insert here your Binance API keys
+from Secrets import api_id, api_hash #insert here your Binance API keys
 from config import get_users
 from utils import *
 

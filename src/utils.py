@@ -1,7 +1,7 @@
 import pandas as pd
 #import time as tm
 from datetime import datetime, time
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin, urlencode
 import json
@@ -70,6 +70,20 @@ def save_load_info(transactTime, user, bitcoin_price_usd, bitcoin_price_eur, qua
 
     data = data.append(df, sort=False)
     data.to_csv('./datasets/data.csv', index=False)
+
+def save_price_tick(user, symbol='BTCEUR'):
+    symbol_path = './datasets/{}.csv'.format(symbol)
+
+    timestamp = exchange_dict[user].get_servertime() #insert name of main user (provided with API keys)
+    bitcoin_price_eur = float(exchange_dict[user].get_price('BTCEUR')['price']) #insert name of main user (provided with API keys)
+    output = timestamp, bitcoin_price_eur
+
+    SYMBOL = pd.read_csv(symbol_path)
+    df = pd.DataFrame(output).T
+    df.columns = ['timestamp', "price"]
+
+    SYMBOL = SYMBOL.append(df, sort=False)
+    SYMBOL.to_csv(symbol_path, index=False)
 
 
 def usd_to_eur(usd):

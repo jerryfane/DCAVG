@@ -2,12 +2,15 @@ import numpy as np
 import pandas as pd
 import time as tm
 from datetime import datetime, time
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
+
+import sys
+sys.path.append('./telegram/')
+
 from Binance import BinanceException, Binance
 from Coinbase import CoinbasePro
-from secrets import api_id, api_hash #insert here your Telegram API keys
+from Secrets import api_id, api_hash #insert here your Telegram API keys
 from utils import *
-
 
 def main(client):
     #wait 1 day
@@ -19,7 +22,7 @@ def main(client):
     #if is it time to buy, proceed
     if is_it_time:
         print(datetime.utcnow(),is_it_time)
-        line_prepender('log.txt', str(datetime.utcnow())+' '+str(is_it_time))
+        line_prepender('./datasets/log.txt', str(datetime.utcnow())+' '+str(is_it_time))
 
         users, exchange_dict, telegram_id_dict = get_users_info()
 
@@ -31,6 +34,9 @@ def main(client):
             #check price of Bitcoin, buy in USDT
             #bitcoin_price_usd = float(binance.get_binance_price('BTCUSDT')['price'])
             #bitcoin_price_eur = usd_to_eur(bitcoin_price_usd)
+
+            #get last bitcoin price by user
+            last_bitcoin_price_eur = data[data.user == user].bitcoin_price_eur.values[-1]
 
             #check price of Bitcoin, buy in EUR
             bitcoin_price_eur = float(exchange.get_price('BTCEUR')['price'])
@@ -50,7 +56,12 @@ def main(client):
                 btc_to_buy = users[user]['btc_to_buy']
 
             #calculate how many bitcoin to buy
-            btc_to_buy += round((buy_eur_per_day / bitcoin_price_eur),6)
+            if users[user]['increase_buy'] == True and bitcoin_price_eur < last_bitcoin_price_eur: #increase the amount of BTC to buy if the price decreased from last time
+                print()
+                btc_to_buy += round((buy_eur_per_day / bitcoin_price_eur),6) * abs((bitcoin_price_eur - last_bitcoin_price_eur) / last_bitcoin_price_eur)
+            else:
+                btc_to_buy += round((buy_eur_per_day / bitcoin_price_eur),6)
+
             btc_to_buy_value = btc_to_buy*bitcoin_price_eur
             print(btc_to_buy)
             print(btc_to_buy_value)
@@ -97,7 +108,7 @@ def main(client):
         main(client)
     else:
         print(datetime.utcnow(),is_it_time)
-        line_prepender('log.txt', str(datetime.utcnow())+' '+str(is_it_time))
+        line_prepender('./datasets/log.txt', str(datetime.utcnow())+' '+str(is_it_time))
         #wait 30 minutes
         tm.sleep(60*30)
 
@@ -129,4 +140,5 @@ def get_users_info():
 
     return users, exchange_dict, telegram_id_dict
 
-main(client)
+if __name__ == "__main__":
+    main(client)
