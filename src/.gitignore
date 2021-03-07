@@ -1,7 +1,3 @@
 *.ipynb
-users.csv
-secrets.py
-log.txt
-data.csv
 excel_files/
 __pycache__/
