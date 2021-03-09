@@ -17,6 +17,8 @@ def get_users(users_path='./datasets/users.csv', data_path='./datasets/data.csv'
         users[user]['telegram_username'] = users_df[users_df['username'] == user]['telegram_username'].values[0]
         users[user]['telegram_id'] = users_df[users_df['username'] == user]['telegram_id'].values[0]
         users[user]['exchange'] = users_df[users_df['username'] == user]['exchange'].values[0]
+        users[user]['increase_buy'] = users_df[users_df['username'] == user]['increase_buy'].values[0]
+       
 
     for user in users:
         if users[user]['continue_from_last_day'] == True:

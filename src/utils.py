@@ -1,7 +1,7 @@
 import pandas as pd
 #import time as tm
 from datetime import datetime, time
-#from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import requests
 from urllib.parse import urljoin, urlencode
 import json

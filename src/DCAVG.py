@@ -36,7 +36,8 @@ def main(client):
             #bitcoin_price_eur = usd_to_eur(bitcoin_price_usd)
 
             #get last bitcoin price by user
-            last_bitcoin_price_eur = data[data.user == user].bitcoin_price_eur.values[-1]
+            data_temp = pd.read_csv('./datasets/data.csv')
+            last_bitcoin_price_eur = data_temp[data_temp.user == user].bitcoin_price_eur.values[-1]
 
             #check price of Bitcoin, buy in EUR
             bitcoin_price_eur = float(exchange.get_price('BTCEUR')['price'])
@@ -44,17 +45,16 @@ def main(client):
 
             buy_eur_per_day = users[user]['buy_eur_per_day']
             if users[user]['continue_from_last_day'] == True:
-                data_temp = pd.read_csv('./datasets/data.csv')
                 try:
                     btc_to_buy = data_temp[data_temp['user'] == user]['total_btc'].values[-1]
                 except:
                     #initialize user
                     btc_to_buy = users[user]['btc_to_buy']
                 users[user]['btc_to_buy'] = btc_to_buy
-                del data_temp
             else:
                 btc_to_buy = users[user]['btc_to_buy']
 
+            del data_temp
             #calculate how many bitcoin to buy
             if users[user]['increase_buy'] == True and bitcoin_price_eur < last_bitcoin_price_eur: #increase the amount of BTC to buy if the price decreased from last time
                 print()
