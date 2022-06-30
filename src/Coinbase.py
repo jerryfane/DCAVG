@@ -38,8 +38,13 @@ class CoinbasePro():
     def get_filled_order_data(self, order_id):
         return pd.DataFrame(self.auth_client.get_fills(order_id=order_id))
 
-    def buy_BTC(self, order_type, quantity, price=0):
-        order_id = self.market_buy_size(order_type.lower(), 'BTC-EUR', quantity)
+    def buy_crypto(self, order_type, quantity, symbol, price=0):
+        if symbol == 'BTCEUR':
+            symbol = 'BTC-EUR'
+        elif symbol == 'ETHEUR':
+            symbol = 'ETH-EUR'
+
+        order_id = self.market_buy_size(order_type.lower(), symbol, quantity)
         tm.sleep(10)
         if self.check_order_filled(order_id):
             return self.get_filled_order_data(order_id)

@@ -6,88 +6,51 @@ import requests
 from urllib.parse import urljoin, urlencode
 import json
 
-from telethon.tl.functions.messages import SearchRequest
-from telethon.tl.types import InputMessagesFilterEmpty
-from telethon import TelegramClient, sync
-from telethon import functions, types
-from retrying import retry
+from pushover import Client
+from config import pushover_APIKEY
 
-import pandas as pd
+def send_message_pushover(message, pushover_USERKEY):
+    pushover_USERKEY = [pushover_USERKEY]
+    client = [Client(key, api_token=pushover_APIKEY) for key in pushover_USERKEY]
+    user = client[0]
+    user.send_message(message, title='DCAVG')
 
+def get_users(users_path='./datasets/users.csv', data_path='./datasets/data.csv'):
+    users = {}
+    users_df = pd.read_csv(users_path)
 
-def send_message_telegram(client, user_id, output):
-    #destination_channel="https://t.me/{}".format(user)
-    #destination_channel="https://t.me/jerrytest"
-    entity=client.get_entity(int(user_id))
-    #client.send_file(entity=entity,file='screenshot.png',caption=output)
-    client.send_message(entity=entity,message=output)
-
-def save_buy_info(buy_info, user, bitcoin_price_eur, btc_to_buy, transactTime, exchange='binance'):
-
-    if exchange == 'binance':
-        orderId = buy_info['orderId']
-        clientOrderId = buy_info['clientOrderId']
-        #transactTime = buy_info['transactTime']
-        quantity_btc = buy_info['origQty']
-        quantity_usd = eur_to_usd(buy_info['cummulativeQuoteQty'])
-        commission_btc = buy_info['fills'][0]['commission']
-        #price_usd = buy_info['fills'][0]['price']
-        price_usd = eur_to_usd(bitcoin_price_eur)
-        tradeId = buy_info['fills'][0]['tradeId']
-        status = 'completed'
-
-    elif exchange == 'coinbase':
-        orderId = buy_info['order_id'].values[0]
-        clientOrderId = buy_info['order_id'].values[0]
-        #transactTime = buy_info['created_at'].values[0]
-        quantity_btc = buy_info['size'].values[0]
-        quantity_usd = buy_info['usd_volume'].values[0]
-        commission_btc = float(buy_info['fee'].values[0]) / bitcoin_price_eur
-        price_usd = eur_to_usd(bitcoin_price_eur)
-        tradeId = buy_info['trade_id'].values[0]
-        status = 'completed'
-
-    output = (transactTime, user, quantity_btc, quantity_usd, commission_btc, price_usd, bitcoin_price_eur, btc_to_buy, orderId, clientOrderId, status)
-    data = pd.read_csv('./datasets/data.csv')
-
-    df = pd.DataFrame(output).T
-    df.columns = ['transactTime', "user", "quantity_btc", "quantity_usd", "commission_btc",
-              'price_usd', "bitcoin_price_eur", "total_btc", "orderId", "clientOrderId", "status"]
-
-    data = data.append(df, sort=False)
-    data.to_csv('./datasets/data.csv', index=False)
+    for user in users_df['username']:
+        users[user] = {}
+        users[user]['crypto'] = users_df[users_df['username'] == user]['crypto'].values[0]
+        users[user]['buy_eur_per_day'] = users_df[users_df['username'] == user]['buy_eur_per_day'].values[0]
+        #set true if you want to get the amount of BTC to buy from the amount saved on data.csv
+        users[user]['continue_from_last_day'] = users_df[users_df['username'] == user]['continue_from_last_day'].values[0]
+        users[user]['btc_to_buy'] = users_df[users_df['username'] == user]['btc_to_buy'].values[0]
+        users[user]['API_KEY'] = users_df[users_df['username'] == user]['API_KEY'].values[0]
+        users[user]['SECRET_KEY'] = users_df[users_df['username'] == user]['SECRET_KEY'].values[0]
+        users[user]['PASSPHRASE'] = users_df[users_df['username'] == user]['PASSPHRASE'].values[0]
+        users[user]['telegram_username'] = users_df[users_df['username'] == user]['telegram_username'].values[0]
+        users[user]['telegram_id'] = users_df[users_df['username'] == user]['telegram_id'].values[0]
+        users[user]['exchange'] = users_df[users_df['username'] == user]['exchange'].values[0]
+        users[user]['increase_buy'] = users_df[users_df['username'] == user]['increase_buy'].values[0]
+        users[user]['pushover_userkey'] = users_df[users_df['username'] == user]['pushover_userkey'].values[0]
 
 
-def save_load_info(transactTime, user, bitcoin_price_usd, bitcoin_price_eur, quantity_btc, quantity_usd, btc_to_buy):
-    status = 'postponed'
+    for user in users:
+        if users[user]['continue_from_last_day'] == True:
+            data = pd.read_csv(data_path)
+            try:
+                btc_to_buy = data[data['user'] == user]['total_btc'].values[-1]
+            except:
+                btc_to_buy = users[user]['btc_to_buy']
+            users[user]['btc_to_buy'] = btc_to_buy
 
-    output = (transactTime, user, quantity_btc, quantity_usd, 0, bitcoin_price_usd, bitcoin_price_eur, btc_to_buy, 0, 0, status)
-    data = pd.read_csv('./datasets/data.csv')
+    return users
 
-    df = pd.DataFrame(output).T
-    df.columns = ['transactTime', "user", "quantity_btc", "quantity_usd", "commission_btc",
-              'price_usd', "bitcoin_price_eur", "total_btc", "orderId", "clientOrderId", "status"]
-
-    data = data.append(df, sort=False)
-    data.to_csv('./datasets/data.csv', index=False)
-
-def save_price_tick(user, symbol='BTCEUR'):
-    symbol_path = './datasets/{}.csv'.format(symbol)
-
-    timestamp = exchange_dict[user].get_servertime() #insert name of main user (provided with API keys)
-    bitcoin_price_eur = float(exchange_dict[user].get_price('BTCEUR')['price']) #insert name of main user (provided with API keys)
-    output = timestamp, bitcoin_price_eur
-
-    SYMBOL = pd.read_csv(symbol_path)
-    df = pd.DataFrame(output).T
-    df.columns = ['timestamp', "price"]
-
-    SYMBOL = SYMBOL.append(df, sort=False)
-    SYMBOL.to_csv(symbol_path, index=False)
 
 
 def usd_to_eur(usd):
-    url_eurusd = "https://api.exchangeratesapi.io/latest"
+    url_eurusd = "https://api.exchangeratesapi.io/latest?access_key=ec10cc589293d5f5da39e53ca30c0f7d"
     response = requests.get(url_eurusd)
     soup = BeautifulSoup(response.content, "html.parser")
     dic = json.loads(soup.prettify())
@@ -96,7 +59,7 @@ def usd_to_eur(usd):
     return float(usd) / exchange_rate_1eur_eqto
 
 def eur_to_usd(eur):
-    url_eurusd = "https://api.exchangeratesapi.io/latest"
+    url_eurusd = "http://api.exchangeratesapi.io/latest?access_key=ec10cc589293d5f5da39e53ca30c0f7d"
     response = requests.get(url_eurusd)
     soup = BeautifulSoup(response.content, "html.parser")
     dic = json.loads(soup.prettify())
@@ -127,17 +90,17 @@ def create_excel(user, status, data_path='./datasets/data.csv'):
     df = pd.read_csv(data_path)
     df['date'] = df['transactTime'].apply(lambda x: datetime.fromtimestamp(int(str(x)[:-3])/100).strftime('%Y-%m-%d %H:%M:%S'))
     df = df.set_index('date')
-    df['total_btc_value'] = df['total_btc'] * df['price_usd']
-    df3 = df[['user','quantity_btc', 'quantity_usd', 'price_usd', 'bitcoin_price_eur', 'total_btc', 'total_btc_value', 'status']]
+    df['total_crypto_value'] = df['total_crypto'] * df['price_usd']
+    df3 = df[['user', 'quantity_crypto', 'quantity_usd', 'price_usd', 'crypto_price_eur', 'total_crypto', 'total_crypto_value', 'status']]
 
 
     user_df = df3[df3['user'] == user]
     df_excel = user_df[user_df.status == status]
 
 
-    columns = ['quantity_btc',
-           'bitcoin_price_eur',
-           'price_usd']
+    columns = ['quantity_crypto',
+               'crypto_price_eur',
+               'price_usd']
 
     #df_excel = df_excel[columns][::-1]
     df_excel = df_excel[columns]
@@ -153,7 +116,8 @@ def create_excel(user, status, data_path='./datasets/data.csv'):
     df_excel['Profit/Loss (EUR)'] = df_excel['Balance (EUR)'] - df_excel['Paid (EUR)']
     df_excel['Profit/Loss Percentage'] = df_excel['Profit/Loss (EUR)'] / df_excel['Paid (EUR)']
 
-    cols = ['Paid (BTC)',
+    cols = [
+        'Paid (BTC)',
         'Exchange In (EUR)',
         'Paid (EUR)',
         'Balance (BTC)',
@@ -173,7 +137,6 @@ def create_excel(user, status, data_path='./datasets/data.csv'):
 
 def create_excel_file(user, data_path):
 
-    #print('create_excel_file')
 
     with pd.ExcelWriter('./excel_files/{}.xlsx'.format(user)) as writer:
         create_excel(user, 'postponed', data_path).to_excel(writer, sheet_name='Postponed')

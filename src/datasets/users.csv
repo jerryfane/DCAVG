@@ -1,2 +1,2 @@
-username,buy_eur_per_day,continue_from_last_day,btc_to_buy,increase_buy,exchange,API_KEY,SECRET_KEY,PASSPHRASE,telegram_username,telegram_id
-jerry,4.0,True,0,True,binance,API_KEY,SECRET_KEY,PASSPHRASE,****,***
+username,crypto,buy_eur_per_day,continue_from_last_day,btc_to_buy,increase_buy,exchange,API_KEY,SECRET_KEY,PASSPHRASE,telegram_username,telegram_id,pushover_userkey
+jerry,BTC,12.0,True,0,True,binance,user_exchange_api_key,user_exchange_api_secret_key,aaa,****,****,pushover_userkey
